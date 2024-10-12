@@ -37,6 +37,11 @@ class ChildSchema(typing_extensions.TypedDict):
     grade: int
     interests: str # TODO make this list[str]
 
+class NotebookSchema(typing_extensions.TypedDict):
+    exercise_number: int
+    topic: str
+    exercises: list[str]
+
 
 # global child object to save attributes
 child = Child("John", 10, 5, "Dinosaur")
@@ -72,8 +77,20 @@ with gr.Blocks(fill_height=True) as iface2:
         )
     chat = gr.ChatInterface(fn=message_submitted, title="Your personal teaching assistant", chatbot=chatbot)
 
+# TODO write prompt for notebook generation
+notebook_base_prompt = "Please create 5 exercises for the child you are teaching, based on the topic of trigonometry."
 
-demo = gr.TabbedInterface([iface1, iface2], ["user", "chat"])
+def generate_notebook(ex_num, topic):
+    raw_notebook = model.generate_content(notebook_base_prompt,
+        generation_config=genai.GenerationConfig(response_mime_type="application/json",
+        response_schema = NotebookSchema))
+    print(raw_notebook.text)
+
+with gr.Blocks(fill_height=True) as iface3:
+    button = gr.Button("Generate Exercise")
+    button.click(fn=generate_notebook)
+
+demo = gr.TabbedInterface([iface1, iface2, iface3], ["user", "chat", "notebook"], title="Teaching Assistant")
 
 # Run the interface
 if __name__ == "__main__":
