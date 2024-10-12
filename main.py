@@ -37,10 +37,7 @@ class ChildSchema(typing_extensions.TypedDict):
     grade: int
     interests: str # TODO make this list[str]
 
-class NotebookSchema(typing_extensions.TypedDict):
-    exercise_number: int
-    topic: str
-    exercises: list[str]
+
 
 
 # global child object to save attributes
@@ -78,14 +75,19 @@ with gr.Blocks(fill_height=True) as iface2:
     chat = gr.ChatInterface(fn=message_submitted, title="Your personal teaching assistant", chatbot=chatbot)
 
 # TODO write prompt for notebook generation
-notebook_base_prompt = "Please create 5 exercises for the child you are teaching, based on the topic of trigonometry."
+# notebook_base_prompt = "Please create 5 exercises for the child you are teaching, based on the topic of trigonometry."
 
-prompt = """List a few popular cookie recipes in JSON format.
+notebook_base_prompt = """Please create 5 exercises for the child you are teaching, based on the topic of trigonometry in this JSON format.
 
 Use this JSON schema:
 
-Recipe = {'recipe_name': str, 'ingredients': list[str]}
-Return: list[Recipe]"""
+Exercise = {'exercise_number': int, 'topic': str, 'exercises': list[str]}
+Return: list[Exercise]"""
+
+class NotebookSchema(typing_extensions.TypedDict):
+    exercise_number: int
+    topic: str
+    exercises: list[str]
 
 def generate_notebook(ex_num, topic):
     raw_notebook = model.generate_content(notebook_base_prompt,
