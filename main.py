@@ -80,6 +80,13 @@ with gr.Blocks(fill_height=True) as iface2:
 # TODO write prompt for notebook generation
 notebook_base_prompt = "Please create 5 exercises for the child you are teaching, based on the topic of trigonometry."
 
+prompt = """List a few popular cookie recipes in JSON format.
+
+Use this JSON schema:
+
+Recipe = {'recipe_name': str, 'ingredients': list[str]}
+Return: list[Recipe]"""
+
 def generate_notebook(ex_num, topic):
     raw_notebook = model.generate_content(notebook_base_prompt,
         generation_config=genai.GenerationConfig(response_mime_type="application/json",
