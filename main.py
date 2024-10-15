@@ -9,6 +9,7 @@ import os
 import time
 import json
 from dotenv import load_dotenv
+import pdf_generator as pdf_gen
 
 load_dotenv()
 # api_key = os.getenv("API_KEY")
@@ -77,11 +78,11 @@ with gr.Blocks(fill_height=True) as iface2:
 # TODO write prompt for notebook generation
 # notebook_base_prompt = "Please create 5 exercises for the child you are teaching, based on the topic of trigonometry."
 
-notebook_base_prompt = """Please create 5 exercises for the child you are teaching, based on the topic of trigonometry in this JSON format.
+notebook_base_prompt = """Please create 5 exercises for the child you are teaching, based on the topic of trigonometry in this JSON format. Only output the expected json list.
 
 Use this JSON schema:
 
-Exercise = {'exercise_number': int, 'topic': str, 'exercises': list[str]}
+Exercise = {'exercise_number': int, 'topic': str, 'text': str}
 Return: list[Exercise]"""
 
 class NotebookSchema(typing_extensions.TypedDict):
@@ -90,14 +91,23 @@ class NotebookSchema(typing_extensions.TypedDict):
     exercises: list[str]
 
 def generate_notebook(ex_num, topic):
-    raw_notebook = model.generate_content(notebook_base_prompt,
-        generation_config=genai.GenerationConfig(response_mime_type="application/json",
-        response_schema = NotebookSchema))
-    print(raw_notebook.text)
+    response = chat.send_message(notebook_base_prompt)
+    # print("--------------------")
+    # print(response.text)
+    # print("--------------------")
+    # print(response.text[8:-4])
+    # print("--------------------")
+    pdf_gen.generate_notebook(response.text[8:-4])
+    # raw_notebook = model.generate_content(notebook_base_prompt,
+    #     generation_config=genai.GenerationConfig(response_mime_type="application/json",
+    #     response_schema = NotebookSchema))
+    
 
 with gr.Blocks(fill_height=True) as iface3:
+
     button = gr.Button("Generate Exercise")
     button.click(fn=generate_notebook)
+    # download_button = gr.Download("notebook.pdf", label="Download Notebook")
 
 demo = gr.TabbedInterface([iface1, iface2, iface3], ["user", "chat", "notebook"], title="Teaching Assistant")
 
