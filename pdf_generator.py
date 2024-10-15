@@ -2,9 +2,9 @@ import json
 import pdfkit
 
 class Exercise:
-    def __init__(self, exercise_number, topic, text):
+    def __init__(self, exercise_number, ex_title, text):
         self.exercise_number = exercise_number
-        self.topic = topic
+        self.ex_title = ex_title
         self.text = text
 
 html_template = """<!DOCTYPE html>
@@ -56,7 +56,7 @@ html_template = """<!DOCTYPE html>
 html_exercise = """<div class="exercise">
         <img src="path/to/image1.jpg" alt="Exercise 1 Image">
         <div>
-            <div class="exercise-title">{{topic}}</div>
+            <div class="exercise-title">{{ex_title}}</div>
             <div class="exercise-number">{{number}}</div>
             <div class="exercise-text">{{text}}</div>
         </div>
@@ -71,7 +71,7 @@ def extract_exercises_from_json(raw_json):
     for item in json_list:
         exercise = Exercise(
             exercise_number=item.get('exercise_number'),
-            topic=item.get('topic'),
+            ex_title=item.get('ex_title'),
             text=item.get('text')
         )
         exercises.append(exercise)
@@ -82,10 +82,10 @@ def generate_notebook(raw_json):
     all_exercises = ""
     for exercise in exercises:
         print("TESTING")
-        print(exercise.exercise_number, "--", exercise.topic, "--", exercise.text)
+        print(exercise.exercise_number, "--", exercise.ex_title, "--", exercise.text)
         print("------------------")
         ex_html = html_exercise
-        ex_html = ex_html.replace('{{topic}}', exercise.topic)
+        ex_html = ex_html.replace('{{ex_title}}', exercise.ex_title)
         ex_html = ex_html.replace('{{number}}', str(exercise.exercise_number))
         ex_html = ex_html.replace('{{text}}', exercise.text)
         all_exercises += ex_html
@@ -93,6 +93,6 @@ def generate_notebook(raw_json):
     print("------------------")
     print(output_html)
     print("------------------")
-    pdfkit.from_string(output_html, 'notebook.pdf', configuration=config)
+    pdfkit.from_string(output_html, 'notebook.pdf', configuration=config, options={"enable-local-file-access": ""})
     return output_html
     
